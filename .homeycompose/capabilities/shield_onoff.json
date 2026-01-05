@@ -1,0 +1,14 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Shield"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "uiQuickAction": true,
+  "icon": "/assets/shield_onoff.svg",
+  "desc": {
+    "en": "When on, traffic stops between the bridged devices"
+  }
+}

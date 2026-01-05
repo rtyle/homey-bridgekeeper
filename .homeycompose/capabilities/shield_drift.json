@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Drift"
+  },
+  "getable": true,
+  "setable": false,
+  "icon": "/assets/shield_drift.svg",
+  "desc": {
+    "en": "List of peer capabilites whose values have drifted away from us"
+  }
+}
