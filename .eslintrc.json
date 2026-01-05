@@ -3,6 +3,9 @@
   "rules": {
     "node/no-extraneous-import": ["error", {
       "allowModules": ["homey"]
-    }]
+    }],
+    "node/no-missing-import": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off"
   }
 }
