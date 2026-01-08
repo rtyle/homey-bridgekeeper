@@ -1,6 +1,8 @@
 import Homey from 'homey';
 import { HomeyAPI, HomeyAPIV3Local } from 'homey-api';
 
+import Logger from './lib/logger';
+
 declare module 'homey-api' {
   // use typescript declaration merging to add what this module is missing
   interface HomeyAPIV3Local {
@@ -9,6 +11,8 @@ declare module 'homey-api' {
 }
 
 class App extends Homey.App {
+  protected readonly logger = Logger.get(this.constructor.name);
+
   private api: HomeyAPIV3Local | null = null;
   private apiPromise: Promise<HomeyAPIV3Local> | null = null;
   async getApi(): Promise<HomeyAPIV3Local> {
@@ -27,8 +31,9 @@ class App extends Homey.App {
   }
 
   async onInit() {
-    this.getApi().catch(this.error);
+    Logger.init(Logger.Level.INFO, Logger.Level.INFO, this.log.bind(this), this.error.bind(this));
+    this.logger.log(Logger.Level.DEBUG, 'onInit');
   }
 }
 
-export = App;
+export default App;

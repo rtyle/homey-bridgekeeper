@@ -1,4 +1,5 @@
 import Bridge from '../../lib/bridge/device';
+import Logger from '../../lib/logger';
 
 class Forward extends Bridge {
 
@@ -8,7 +9,7 @@ class Forward extends Bridge {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async maySetCapabilityValue(c: string, v: any, o: any) {
-    this.log(`${this.constructor.name} maySetCapabilityValue: ${c} = ${v}`);
+    this.logger.log(Logger.Level.DEBUG, `maySetCapabilityValue: ${c} = ${v}`);
     if (v !== this.peerGetCapabilityValue(c)) {
       await this.peerSetCapabilityValue(c, v);
     }
@@ -17,12 +18,12 @@ class Forward extends Bridge {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async peerHasSetCapabilityValue(c: string, v: any) {
     const v_ = this.getCapabilityValue(c);
-    this.log(`${this.constructor.name} getCapabilityValue: ${c} = ${v_}`);
+    this.logger.log(Logger.Level.DEBUG, `peerHasSetCapabilityValue: ${c} = ${v_}`);
     if (v !== v_) {
-      this.log(`${this.constructor.name} setCapabilityValue: ${c} = ${v}`);
+      this.logger.log(Logger.Level.DEBUG, `setCapabilityValue: ${c} = ${v}`);
       await this.setCapabilityValue(c, v);
     }
   }
 }
 
-export = Forward;
+export default Forward;

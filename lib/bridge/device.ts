@@ -1,4 +1,5 @@
 import { HomeyAPIV3 } from 'homey-api';
+
 import Clone from '../../drivers/clone/device';
 
 abstract class Bridge extends Clone {
@@ -50,4 +51,4 @@ abstract class Bridge extends Clone {
   }
 }
 
-export = Bridge;
+export default Bridge;

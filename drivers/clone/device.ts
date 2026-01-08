@@ -1,6 +1,8 @@
 import Homey from 'homey';
 import { HomeyAPIV3Local } from 'homey-api';
+
 import type App from '../../app.ts';
+import Logger from '../../lib/logger.js';
 
 interface CapabilitiesObj {
   [capability: string]: {
@@ -11,11 +13,12 @@ interface CapabilitiesObj {
 }
 
 class Clone extends Homey.Device {
+  protected readonly logger = Logger.get(this.constructor.name);
 
   private peer : HomeyAPIV3Local.ManagerDevices.Device | null = null;
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
   protected async getPeer(): Promise<HomeyAPIV3Local.ManagerDevices.Device> {
-    this.log(`${this.constructor.name} getPeer`);
+    this.logger.log(Logger.Level.DEBUG, 'getPeer');
     if (this.peer) return this.peer;
     if (this.peerPromise) return this.peerPromise;
     this.peerPromise = (async () => {
@@ -33,7 +36,7 @@ class Clone extends Homey.Device {
   }
 
   protected async copyPeer() {
-    this.log(`${this.constructor.name} copyPeer`);
+    this.logger.log(Logger.Level.DEBUG, 'copyPeer');
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
     await Promise.all(peer.capabilities
@@ -47,7 +50,7 @@ class Clone extends Homey.Device {
   }
 
   protected _onAdded(forgetPeer: boolean = false) {
-    this.log(`${this.constructor.name} onAdded`);
+    this.logger.log(Logger.Level.DEBUG, 'onAdded');
     (async () => {
       await this.copyPeer();
       if (forgetPeer) {
@@ -64,8 +67,8 @@ class Clone extends Homey.Device {
   // maySetCapabilityValue is called in repsonse to a setCapabilityValue request.
   // throw to deny the request.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  maySetCapabilityValue(capability: string, value: any, _options: any) {
-    this.log(`${this.constructor.name} hasCapabilityValue: ${capability} = ${value}`);
+  async maySetCapabilityValue(capability: string, value: any, _options: any) {
+    this.logger.log(Logger.Level.DEBUG, `hasCapabilityValue: ${capability} = ${value}`);
   }
 
   // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
@@ -81,4 +84,4 @@ class Clone extends Homey.Device {
   }
 }
 
-export = Clone;
+export default Clone;
