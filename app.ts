@@ -19,8 +19,15 @@ class App extends Homey.App {
   }
 
   async onInit() {
-    Logger.init(Logger.LevelThreshold.D, this.log.bind(this), this.error.bind(this));
+    Logger.init(Number(this.homey.settings.get('logger_level_threshold')), this.log.bind(this), this.error.bind(this));
     this.logger.logD('onInit');
+
+    this.homey.settings.on('set', (setting) => {
+      if (setting === 'logger_level_threshold') {
+        Logger.setLevelThreshold(Number(this.homey.settings.get('logger_level_threshold')));
+      }
+    });
+
     this.apiPromise = HomeyAPI.createAppAPI({ homey: this.homey });
   }
 }
