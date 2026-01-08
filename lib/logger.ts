@@ -29,7 +29,7 @@ class Logger {
 
   private static write(stream: (_: string) => void, tag: string, level: Level, message: string) {
     if (level <= Logger.levelThreshold) {
-      stream(`${level} ${tag}: ${message}`);
+      stream(`${Level[level]} ${tag}: ${message}`);
     }
   }
 
