@@ -1,5 +1,4 @@
 import Bridge from '../../lib/bridge/device';
-import Logger from '../../lib/logger';
 
 class Shield extends Bridge {
 
@@ -10,7 +9,7 @@ class Shield extends Bridge {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async maySetCapabilityValue(c: string, v: any, o: any) {
-    this.logger.log(Logger.Level.DEBUG, `maySetCapabilityValue: ${c} = ${v}`);
+    this.logger.logD(`maySetCapabilityValue: ${c} = ${v}`);
     if (this.driver.manifest.capabilities.includes(c)) {
       if (c === 'shield_onoff') {
         await this.copyPeer();
@@ -26,7 +25,7 @@ class Shield extends Bridge {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async peerHasSetCapabilityValue(c: string, v: any) {
-    this.logger.log(Logger.Level.DEBUG, `peerHasSetCapabilityValue: ${c} = ${v}`);
+    this.logger.logD(`peerHasSetCapabilityValue: ${c} = ${v}`);
     const capability = 'shield_drift';
     const value = this.getCapabilities()
       .filter((c) => !this.driver.manifest.capabilities.includes(c))
@@ -34,7 +33,7 @@ class Shield extends Bridge {
       .sort()
       .join(', ');
     if (value !== this.getCapabilityValue(capability)) {
-      this.logger.log(Logger.Level.DEBUG, `setCapabilityValue: ${capability} = ${value}`);
+      this.logger.logD(`setCapabilityValue: ${capability} = ${value}`);
       await this.setCapabilityValue(capability, value);
     }
   }

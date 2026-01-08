@@ -13,7 +13,7 @@ class Clone extends Homey.Driver {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async onPairListDevices(): Promise<Array<any>> {
-    this.logger.log(Log.Level.DEBUG, 'onPairListDevices');
+    this.logger.logD('onPairListDevices');
     // we can pair with any device.
     // our device will have all of our capabilities plus all of its peer's capabilities
     return Object.values(await (await (this.homey.app as App).getApi()).devices.getDevices())

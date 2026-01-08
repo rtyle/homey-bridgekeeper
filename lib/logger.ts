@@ -1,42 +1,34 @@
-// ala syslog
 enum Level {
-  EMERG = 0,
-  ALERT = 1,
-  CRIT = 2,
-  ERR = 3,
-  WARNING = 4,
-  NOTICE = 5,
-  INFO = 6,
-  DEBUG = 7,
+  E = 1,
+  W = 2,
+  I = 3,
+  D = 4,
+  V = 5,
 }
 
-const toString: Record<Level, string> = {
-  [Level.EMERG]: '[!]',
-  [Level.ALERT]: '[A]',
-  [Level.CRIT]: '[C]',
-  [Level.ERR]: '[E]',
-  [Level.WARNING]: '[W]',
-  [Level.NOTICE]: '[N]',
-  [Level.INFO]: '[I]',
-  [Level.DEBUG]: '[D]',
+const LevelThreshold = {
+  NONE: 0,
+  ...Level,
+  ALL: Number.MAX_SAFE_INTEGER,
 };
 
+type LevelThreshold = typeof LevelThreshold[keyof typeof LevelThreshold];
+
 class Logger {
-  public static readonly Level = Level;
+  private static readonly Level = Level;
+  public static readonly LevelThreshold = LevelThreshold;
 
   // class must be init'ed with threshold level, stdout and stderr streams
-  public static level: Level;
-  public static threshold: Level;
+  public static threshold: LevelThreshold;
   private static log: (_: string) => void;
   private static error: (_: string) => void;
-  public static init(level: Level, threshold: Level, log: (_: string) => void, error: (_: string) => void) {
-    this.level = level;
+  public static init(threshold: LevelThreshold, log: (_: string) => void, error: (_: string) => void) {
     this.threshold = threshold;
     this.log = log;
     this.error = error;
   }
 
-  private static cache: Record<string, Logger>;
+  private static cache: Record<string, Logger> = {};
   public static get(tag: string) {
     if (!Logger.cache[tag]) {
       Logger.cache[tag] = new Logger(tag);
@@ -49,27 +41,52 @@ class Logger {
     this.tag = tag;
   }
 
-  private write(stream: (_: string) => void, level: Level, message: string) {
+  private log(stream: (_: string) => void, level: Level, message: string) {
     if (level <= Logger.threshold) {
-      stream(`[${this.tag} ${toString[level]}] ${message}`);
+      stream(`${level} ${this.tag}: ${message}`);
     }
   }
 
-  public log(level: Level, message: string) {
-    this.write(Logger.log, level, message);
+  public logE(message: string) {
+    this.log(Logger.log, Level.E, message);
   }
 
-  public error(level: Level, message: string) {
-    this.write(Logger.error, level, message);
+  public logW(message: string) {
+    this.log(Logger.log, Level.W, message);
   }
 
-  public log_(message: string) {
-    this.write(Logger.log, Level.INFO, message);
+  public logI(message: string) {
+    this.log(Logger.log, Level.I, message);
   }
 
-  public error_(message: string) {
-    this.write(Logger.error, Level.ERR, message);
+  public logD(message: string) {
+    this.log(Logger.log, Level.D, message);
   }
+
+  public logV(message: string) {
+    this.log(Logger.log, Level.V, message);
+  }
+
+  public logE_(message: string) {
+    this.log(Logger.error, Level.E, message);
+  }
+
+  public logW_(message: string) {
+    this.log(Logger.error, Level.W, message);
+  }
+
+  public logI_(message: string) {
+    this.log(Logger.error, Level.I, message);
+  }
+
+  public logD_(message: string) {
+    this.log(Logger.error, Level.D, message);
+  }
+
+  public logV_(message: string) {
+    this.log(Logger.error, Level.V, message);
+  }
+
 }
 
 export default Logger;

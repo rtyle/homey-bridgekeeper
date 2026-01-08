@@ -31,8 +31,8 @@ class App extends Homey.App {
   }
 
   async onInit() {
-    Logger.init(Logger.Level.INFO, Logger.Level.INFO, this.log.bind(this), this.error.bind(this));
-    this.logger.log(Logger.Level.DEBUG, 'onInit');
+    Logger.init(Logger.LevelThreshold.I, this.log.bind(this), this.error.bind(this));
+    this.logger.logD('onInit');
   }
 }
 

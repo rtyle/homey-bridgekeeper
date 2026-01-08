@@ -1,5 +1,5 @@
 {
-  "name": "com.github.rtyle.homey-bridgekeeper",
+  "name": "com.github.rtyle.bridgekeeper",
   "version": "0.0.0",
   "engines": {
     "node": ">=16.0.0"

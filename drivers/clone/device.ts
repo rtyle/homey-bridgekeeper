@@ -18,7 +18,7 @@ class Clone extends Homey.Device {
   private peer : HomeyAPIV3Local.ManagerDevices.Device | null = null;
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
   protected async getPeer(): Promise<HomeyAPIV3Local.ManagerDevices.Device> {
-    this.logger.log(Logger.Level.DEBUG, 'getPeer');
+    this.logger.logD('getPeer');
     if (this.peer) return this.peer;
     if (this.peerPromise) return this.peerPromise;
     this.peerPromise = (async () => {
@@ -36,7 +36,7 @@ class Clone extends Homey.Device {
   }
 
   protected async copyPeer() {
-    this.logger.log(Logger.Level.DEBUG, 'copyPeer');
+    this.logger.logD('copyPeer');
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
     await Promise.all(peer.capabilities
@@ -50,7 +50,7 @@ class Clone extends Homey.Device {
   }
 
   protected _onAdded(forgetPeer: boolean = false) {
-    this.logger.log(Logger.Level.DEBUG, 'onAdded');
+    this.logger.logD('onAdded');
     (async () => {
       await this.copyPeer();
       if (forgetPeer) {
@@ -68,7 +68,7 @@ class Clone extends Homey.Device {
   // throw to deny the request.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async maySetCapabilityValue(capability: string, value: any, _options: any) {
-    this.logger.log(Logger.Level.DEBUG, `hasCapabilityValue: ${capability} = ${value}`);
+    this.logger.logD(`hasCapabilityValue: ${capability} = ${value}`);
   }
 
   // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
