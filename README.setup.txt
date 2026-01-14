@@ -79,3 +79,46 @@ npm install homey-api
 
 npx homey app run
 
+sudo dnf install nodejs
+
+npx homey app run --remote
+
+	# -r, --remote              Upload the app to Homey Pro and run remotely,
+				    instead of a Docker container on this machine.
+
+# running in a docker container will fail
+	FetchError: request to https://10-0-0-2.homey.homeylocal.com/api/manager/devices/device failed, reason: getaddrinfo EAI_AGAIN 10-0-0-2.homey.homeylocal.com
+# the same happens in a docker shell ...
+	docker run --rm -it alpine sh
+		/ # nslookup 10-0-0-1.homey.homeylocal.com
+		Server:		10.0.0.1
+		Address:	10.0.0.1:53
+
+		Non-authoritative answer:
+		Name:	10-0-0-2.homey.homeylocal.com
+		Address: 10.0.0.2
+
+		** server can't find 10-0-0-2.homey.homeylocal.com: SERVFAIL
+# ... unless we use a DNS server that is not as security conscious as ours (e.g. cloudflare)
+	docker run --rm -it --dns=1.1.1.1 alpine sh
+		/ # nslookup 10-0-0-2.homey.homeylocal.com
+		Server:		1.1.1.1
+		Address:	1.1.1.1:53
+
+		Non-authoritative answer:
+		Name:	10-0-0-2.homey.homeylocal.com
+		Address: 10.0.0.2
+
+		Non-authoritative answer:
+# unfortunately, CLI way to pass the docker --dns=1.1.1.1 option through
+# there are system-wide ways to configure docker but
+# using --remote is fine
+
+# local web UI
+	https://my.homey.app/homeys/<homey>/settings/system/family
+		Owner ... Edit Local User
+			Username: <username>
+			Password: <password>
+
+	https://10-0-0-2.homey.homeylocal.com/
+	https://10.0.0.2/

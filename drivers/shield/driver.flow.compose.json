@@ -1,0 +1,78 @@
+{
+  "triggers": [
+    {
+      "id": "shield_drift",
+      "title": {
+        "en": "Capability drift"
+      },
+      "titleFormatted": {
+        "en": "[[capability]] drift"
+      },
+      "hint": {
+        "en": "Triggered when a capability value drifts away or back"
+      },
+      "args": [
+        {
+          "name": "capability",
+          "type": "autocomplete",
+          "placeholder": {
+            "en": "Select capability"
+          }
+        }
+      ],
+      "tokens": [
+        {
+          "name": "value",
+          "type": "string",
+          "title": {
+            "en": "Value"
+          },
+          "example": "true"
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "shield_drift",
+      "title": {
+        "en": "Capability !{{has drifted away|has drifted back}}"
+      },
+      "titleFormatted": {
+        "en": "[[capability]] !{{has drifted away|has drifted back}}"
+      },
+      "hint": {
+        "en": "Check the drift of a peer capability"
+      },
+      "args": [
+        {
+          "name": "capability",
+          "type": "autocomplete",
+          "placeholder": {
+            "en": "Select capability"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "shield_onoff_on",
+      "title": {
+        "en": "Turn shield on"
+      }
+    },
+    {
+      "id": "shield_onoff_off",
+      "title": {
+        "en": "Turn shield off"
+      }
+    },
+    {
+      "id": "shield_onoff_toggle",
+      "title": {
+        "en": "Toggle shield on or off"
+      }
+    }
+  ]
+}

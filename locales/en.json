@@ -1,6 +1,6 @@
 {
-  "device_name": "{{peerDeviceName}} {{driverName}}",
+  "device_name": "__peerDeviceName__ __driverName__",
   "errors": {
-    "set_capability_value_blocked": "setCapabilityValue({{capability}}, {{value}}) blocked"
+    "set_capability_value_blocked": "__name__ setCapabilityValue(__capability__, __value__) blocked"
   }
 }

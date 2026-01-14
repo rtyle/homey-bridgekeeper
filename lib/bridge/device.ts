@@ -8,9 +8,8 @@ abstract class Bridge extends Clone {
     this._onAdded();
   }
 
-  // peerHasSetCapabilityValue is called in repsonse to a successful peer setCapabilityValue request.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abstract peerHasSetCapabilityValue(capability: string, value: any): Promise<void>;
+  abstract peerNotifyCapabilityValue(capability: string, value: any): Promise<void>;
 
   // onInit, create a private DeviceCapability object as a proxy to each of its capabilities
   private peerCapability: { [key: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
@@ -23,29 +22,32 @@ abstract class Bridge extends Clone {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [c]: peer.makeCapabilityInstance(c, (v: any) => {
           (async () => {
-            await this.peerHasSetCapabilityValue(c, v);
+            await this.peerNotifyCapabilityValue(c, v);
           })().catch(this.error);
         }),
       }), {});
   }
 
+  public async _peerGetCapabilities(): Promise<string[]> {
+    return (await this.getPeer()).capabilities;
+  }
+
   // like this.getCapabilityValue for our peer
   protected peerGetCapabilityValue(c: string) {
     const v = this.peerCapability[c].value;
-    this.log(`${this.constructor.name} peerGetCapabilityValue: ${c} = ${v}`);
+    this.logger.logV(`peerGetCapabilityValue: ${c} = ${v}`);
     return v;
   }
 
-  // like this.setCapabilityValue for our peer
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async peerSetCapabilityValue(c: string, v: any) {
-    this.log(`${this.constructor.name} peerSetCapabilityValue: ${c} = ${v}`);
+    this.logger.logD(`peerSetCapabilityValue: ${c} = ${v}`);
     await this.peerCapability[c].setValue(v);
   }
 
   // cleanup resources created onInit
   override async onUninit() {
-    this.log(`${this.constructor.name} onUninit`);
+    this.logger.logD('onUninit');
     Object.values(this.peerCapability).forEach((pc) => pc.destroy());
     this.peerCapability = {};
   }

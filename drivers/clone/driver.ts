@@ -13,6 +13,7 @@ class Clone extends Homey.Driver {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async onPairListDevices(): Promise<Array<any>> {
+    const driverName_ = this.manifest.name[this.homey.i18n.getLanguage()] || this.manifest.name['en'];
     this.logger.logD('onPairListDevices');
     // we can pair with any device.
     // our device will have all of our capabilities plus all of its peer's capabilities
@@ -20,7 +21,7 @@ class Clone extends Homey.Driver {
       .map((peer_) => {
         const peer = peer_ as Device;
         return {
-          name: this.homey.__('device_name', { peerDeviceName: peer.name, driverName: this.homey.__('name') }),
+          name: this.homey.__('device_name', { peerDeviceName: peer.name, driverName: driverName_ }),
           data: {
             peerId: peer.id,
           },
@@ -31,4 +32,4 @@ class Clone extends Homey.Driver {
   }
 }
 
-export default Clone;
+export = Clone;

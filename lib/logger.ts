@@ -27,9 +27,10 @@ class Logger {
     this.error = error;
   }
 
-  private static write(stream: (_: string) => void, tag: string, level: Level, message: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static write(stream: (...args: any[]) => void, tag: string, level: Level, ...args: any[]) {
     if (level <= Logger.levelThreshold) {
-      stream(`${Level[level]} ${tag}: ${message}`);
+      stream(`${Level[level]} ${tag}:`, ...args);
     }
   }
 
@@ -51,48 +52,59 @@ class Logger {
     this.tag = tag;
   }
 
-  private write(stream: (_: string) => void, level: Level, message: string) {
-    Logger.write(stream, this.tag, level, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private write(stream: (...args: any[]) => void, level: Level, ...args: any[]) {
+    Logger.write(stream, this.tag, level, ...args);
   }
 
-  public logE(message: string) {
-    this.write(Logger.log, Level.E, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logE(...args: any[]) {
+    this.write(Logger.log, Level.E, args);
   }
 
-  public logW(message: string) {
-    this.write(Logger.log, Level.W, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logW(...args: any[]) {
+    this.write(Logger.log, Level.W, ...args);
   }
 
-  public logI(message: string) {
-    this.write(Logger.log, Level.I, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logI(...args: any[]) {
+    this.write(Logger.log, Level.I, ...args);
   }
 
-  public logD(message: string) {
-    this.write(Logger.log, Level.D, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logD(...args: any[]) {
+    this.write(Logger.log, Level.D, ...args);
   }
 
-  public logV(message: string) {
-    this.write(Logger.log, Level.V, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logV(...args: any[]) {
+    this.write(Logger.log, Level.V, ...args);
   }
 
-  public logE_(message: string) {
-    this.write(Logger.error, Level.E, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logE_(...args: any[]) {
+    this.write(Logger.error, Level.E, ...args);
   }
 
-  public logW_(message: string) {
-    this.write(Logger.error, Level.W, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logW_(...args: any[]) {
+    this.write(Logger.error, Level.W, ...args);
   }
 
-  public logI_(message: string) {
-    this.write(Logger.error, Level.I, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logI_(...args: any[]) {
+    this.write(Logger.error, Level.I, ...args);
   }
 
-  public logD_(message: string) {
-    this.write(Logger.error, Level.D, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logD_(...args: any[]) {
+    this.write(Logger.error, Level.D, ...args);
   }
 
-  public logV_(message: string) {
-    this.write(Logger.error, Level.V, message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public logV_(...args: any[]) {
+    this.write(Logger.error, Level.V, ...args);
   }
 }
 

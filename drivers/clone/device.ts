@@ -13,23 +13,25 @@ interface CapabilitiesObj {
 }
 
 class Clone extends Homey.Device {
-  protected readonly logger = Logger.get(this.constructor.name);
+  protected readonly logger = Logger.get([this.constructor.name, this.getName()].join(' '));
 
   private peer : HomeyAPIV3Local.ManagerDevices.Device | null = null;
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
   protected async getPeer(): Promise<HomeyAPIV3Local.ManagerDevices.Device> {
-    this.logger.logD('getPeer');
     if (this.peer) return this.peer;
+    this.logger.logD('getPeer promise');
     if (this.peerPromise) return this.peerPromise;
     this.peerPromise = (async () => {
       try {
         this.peer = await (await (this.homey.app as App).getApi())
-          .devices.getDevice(this.getData().peerId);
+          .devices.getDevice({ id: this.getData().peerId });
         return this.peer;
       } catch (e) {
-        this.error('peer not found:', e);
+        this.logger.logE_('peer not found', e);
         this.peerPromise = null;
         throw e;
+      } finally {
+        this.logger.logD('getPeer resolved');
       }
     })();
     return this.peerPromise;
@@ -64,24 +66,23 @@ class Clone extends Homey.Device {
     this._onAdded(true);
   }
 
-  // maySetCapabilityValue is called in repsonse to a setCapabilityValue request.
-  // throw to deny the request.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async maySetCapabilityValue(capability: string, value: any, _options: any) {
-    this.logger.logD(`hasCapabilityValue: ${capability} = ${value}`);
+  async requestCapabilityValue(c: string, v: any, _options: any) {
+    this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
+    await this.setCapabilityValue(c, v);
   }
 
   // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
   override async onInit() {
-    this.log(`${this.constructor.name} onInit`);
+    this.logger.logD('onInit');
     this.getCapabilities()
       .forEach((c) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.registerCapabilityListener(c, async (v: any, o: any) => {
-          await this.maySetCapabilityValue(c, v, o);
+          await this.requestCapabilityValue(c, v, o);
         });
       });
   }
 }
 
-export default Clone;
+export = Clone;
