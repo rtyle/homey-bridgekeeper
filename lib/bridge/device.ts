@@ -4,8 +4,8 @@ import Clone from '../../drivers/clone/device';
 
 abstract class Bridge extends Clone {
 
-  override onAdded() {
-    this._onAdded();
+  override async _onAdded() {
+    await super._onAdded(false); // don't forgetPeer
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,15 +15,16 @@ abstract class Bridge extends Clone {
   private peerCapability: { [key: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
   override async onInit(): Promise<void> {
     await super.onInit();
+
     const peer = await this.getPeer();
-    // call peerHasCapabilityValue(c, v) when a capability (c) value (v) changes
+    // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
     this.peerCapability = peer.capabilities
       .reduce((r, c) => Object.assign(r, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [c]: peer.makeCapabilityInstance(c, (v: any) => {
           (async () => {
             await this.peerNotifyCapabilityValue(c, v);
-          })().catch(this.error);
+          })().catch(() => {});
         }),
       }), {});
   }

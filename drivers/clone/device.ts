@@ -13,7 +13,7 @@ interface CapabilitiesObj {
 }
 
 class Clone extends Homey.Device {
-  protected readonly logger = Logger.get([this.constructor.name, this.getName()].join(' '));
+  protected readonly logger = Logger.get([this.constructor.name, this.getName()].join(': '));
 
   private peer : HomeyAPIV3Local.ManagerDevices.Device | null = null;
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
@@ -21,49 +21,51 @@ class Clone extends Homey.Device {
     if (this.peer) return this.peer;
     this.logger.logD('getPeer promise');
     if (this.peerPromise) return this.peerPromise;
-    this.peerPromise = (async () => {
-      try {
-        this.peer = await (await (this.homey.app as App).getApi())
-          .devices.getDevice({ id: this.getData().peerId });
-        return this.peer;
-      } catch (e) {
+    this.peerPromise = (this.homey.app as App).getApi()
+      .then((api) => api.devices.getDevice({ id: this.getData().peerId }))
+      .then((device) => {
+        this.peer = device;
+        return device;
+      })
+      .catch((e) => {
         this.logger.logE_('peer not found', e);
         this.peerPromise = null;
         throw e;
-      } finally {
+      })
+      .finally(() => {
         this.logger.logD('getPeer resolved');
-      }
-    })();
+      });
     return this.peerPromise;
   }
 
-  protected async copyPeer() {
-    this.logger.logD('copyPeer');
+  protected async peerSync() {
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
     await Promise.all(peer.capabilities
       .map((c) => {
         const v = peerCapabilitiesObj[c]?.value;
-        if (v !== null && v !== undefined) {
-          return this.setCapabilityValue(c, v).catch(this.error);
+        if (v !== null && v !== undefined && v !== this.getCapabilityValue(c)) {
+          return this.setCapabilityValue(c, v)
+            .then(() => this.logger.logD(`peerSync setCapabilityValue ${c} = ${v}`))
+            .catch((e) => this.logger.logE_(`peerSync setCapabilityValue ${c} = ${v} failure`, e));
         }
         return Promise.resolve();
       }));
   }
 
-  protected _onAdded(forgetPeer: boolean = false) {
+  // override _onAdded in subclasses to avoid forgetting peer on onAdded
+  protected async _onAdded(forgetPeer: boolean = false) {
     this.logger.logD('onAdded');
-    (async () => {
-      await this.copyPeer();
-      if (forgetPeer) {
-        this.peer = null;
-        this.peerPromise = null;
-      }
-    })().catch(this.error);
+    // initialize our mirrored values of our peer's capabilities
+    await this.peerSync();
+    if (forgetPeer) {
+      this.peer = null;
+      this.peerPromise = null;
+    }
   }
 
   override onAdded() {
-    this._onAdded(true);
+    this._onAdded(true).catch((e) => {});
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
