@@ -1,3 +1,4 @@
+import { HomeyAPIV3Local } from 'homey-api';
 import Bridge from '../../lib/bridge/device';
 
 enum Capability {
@@ -69,26 +70,31 @@ class Shield extends Bridge {
           this.logger.logE_(`requestCapabilityValue: ${c} = ${v} unsupported`);
           throw new Error(`unsupported shield capability request: ${c} = ${v}`);
       }
+    } else if (this.getCapabilityValue(Capability.onoff)) {
+      this.logger.logD(`requestCapabilityValue: ${c} = ${v} blocked`);
+      throw new Error(this.homey.__('errors.set_capability_value_blocked', { name: this.getName(), capability: c, value: v }));
     } else {
       this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
-      if (this.getCapabilityValue(Capability.onoff)) {
-        this.logger.logD_(`requestCapabilityValue: ${c} = ${v} blocked`);
-        throw new Error(this.homey.__('errors.set_capability_value_blocked', { name: this.getName(), capability: c, value: v }));
-      } else {
-        await this.peerSetCapabilityValue(c, v); // update drift upon peerNotifyCapabilityValue
-      }
+      await this.peerSetCapabilityValue(c, v); // update drift upon peerNotifyCapabilityValue
     }
   }
 
+  private lastPromise: Promise<void> = Promise.resolve();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override async peerNotifyCapabilityValue(c: string, v: any) {
-    this.logger.logD(`peerNotifyCapabilityValue: ${c} = ${v}`);
-    if (this.driver.manifest.capabilities.includes(c)) {
-      this.logger.logE_(`peerNotifyCapabilityValue: ${c} = ${v} unsupported`);
-    } else {
-      await this.setShieldDriftSet(new Set((await this.getPeer()).capabilities
-        .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
-    }
+  override async peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, c: string, v: any) {
+    // resolve our lastPromise then promise to process this change
+    // this ensures that we have completed processing of prior changes before starting on this one
+    this.lastPromise = this.lastPromise.then(async () => {
+      this.logger.logD(`peerNotifyCapabilityValue: ${c} = ${v}`);
+      if (this.driver.manifest.capabilities.includes(c)) {
+        this.logger.logE_(`peerNotifyCapabilityValue: ${c} = ${v} unsupported`);
+      } else {
+        await this.setShieldDriftSet(new Set(peer.capabilities
+          .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
+      }
+    });
+    return this.lastPromise;
   }
 }
 

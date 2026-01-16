@@ -1,4 +1,4 @@
-import { HomeyAPIV3 } from 'homey-api';
+import { HomeyAPIV3, HomeyAPIV3Local } from 'homey-api';
 
 import Clone from '../../drivers/clone/device';
 
@@ -9,10 +9,10 @@ abstract class Bridge extends Clone {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abstract peerNotifyCapabilityValue(capability: string, value: any): Promise<void>;
+  abstract peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, capability: string, value: any): void;
 
   // onInit, create a private DeviceCapability object as a proxy to each of its capabilities
-  private peerCapability: { [key: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
+  private peerCapability: { [_: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
   override async onInit(): Promise<void> {
     await super.onInit();
 
@@ -22,9 +22,7 @@ abstract class Bridge extends Clone {
       .reduce((r, c) => Object.assign(r, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [c]: peer.makeCapabilityInstance(c, (v: any) => {
-          (async () => {
-            await this.peerNotifyCapabilityValue(c, v);
-          })().catch(() => {});
+          this.peerNotifyCapabilityValue(peer, c, v);
         }),
       }), {});
   }
@@ -43,7 +41,7 @@ abstract class Bridge extends Clone {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async peerSetCapabilityValue(c: string, v: any) {
     this.logger.logD(`peerSetCapabilityValue: ${c} = ${v}`);
-    await this.peerCapability[c].setValue(v);
+    await this.peerCapability[c]?.setValue(v);
   }
 
   // cleanup resources created onInit

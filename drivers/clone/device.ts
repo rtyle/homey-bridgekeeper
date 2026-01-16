@@ -19,22 +19,21 @@ class Clone extends Homey.Device {
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
   protected async getPeer(): Promise<HomeyAPIV3Local.ManagerDevices.Device> {
     if (this.peer) return this.peer;
-    this.logger.logD('getPeer promise');
+    this.logger.logD('getPeer: promise');
     if (this.peerPromise) return this.peerPromise;
-    this.peerPromise = (this.homey.app as App).getApi()
-      .then((api) => api.devices.getDevice({ id: this.getData().peerId }))
-      .then((device) => {
-        this.peer = device;
-        return device;
-      })
-      .catch((e) => {
-        this.logger.logE_('peer not found', e);
+    this.peerPromise = (async () => {
+      try {
+        this.peer = await (await (this.homey.app as App).getApi())
+          .devices.getDevice({ id: this.getData().peerId });
+        return this.peer;
+      } catch (e) {
+        this.logger.logE_('getPeer: peer not found', e);
         this.peerPromise = null;
         throw e;
-      })
-      .finally(() => {
-        this.logger.logD('getPeer resolved');
-      });
+      } finally {
+        this.logger.logD('getPeer: promise settled');
+      }
+    })();
     return this.peerPromise;
   }
 

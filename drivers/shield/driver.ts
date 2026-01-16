@@ -29,7 +29,9 @@ class Shield extends Bridge {
       })
       .registerRunListener(async (args, state) => {
         const match = args.capability.id === state.capability;
-        this.logger.logD(`${args.device.getName()}: trigger shield_drift runListener: args ${args.capability.id} ${match ? '==' : '!='} state ${state.capability}`);
+        if (match) {
+          this.logger.logD(`${args.device.getName()}: trigger ${Flow.drift} runListener: ${args.capability.id}`);
+        }
         return match;
       });
 
@@ -41,29 +43,34 @@ class Shield extends Bridge {
       })
       .registerRunListener(async (args, state) => {
         const device = args.device as Device;
-        const value = device.getCapabilityValue(Device.Capability.drift)
+        const value = (device.getCapabilityValue(Device.Capability.drift) || '')
           .split(', ')
           .filter((s: string) => s)
           .includes(args.capability.id);
-        this.logger.logD(`${device.getName()}: condition shield_drift runListener: ${args.capability.id} drift? ${value}`);
+        this.logger.logD(`${device.getName()}: condition ${Flow.drift} runListener: ${args.capability.id} = ${value}`);
         return value;
       });
 
     // actions
-    const actions: Array<[Flow, boolean | null]> = [
+    const actions: Array<[Flow, boolean]> = [
       [Flow.onoffOn, true],
       [Flow.onoffOff, false],
-      [Flow.onoffToggle, null],
     ];
     actions.forEach(([flow, value]) => {
       this.homey.flow.getActionCard(flow)
         .registerRunListener(async (args) => {
           const device = args.device as Device;
-          const v = value === null ? !device.getCapabilityValue(Device.Capability.onoff) : value as boolean;
-          this.logger.logD(`${device.getName()}: action shield_onoff runListener: ${flow} (${v})`);
-          await device._setShieldOnoffValue(v);
+          this.logger.logD(`${device.getName()}: action ${flow} runListener`);
+          await device._setShieldOnoffValue(value);
         });
     });
+    this.homey.flow.getActionCard(Flow.onoffToggle)
+      .registerRunListener(async (args) => {
+        const device = args.device as Device;
+        const value = !device.getCapabilityValue(Device.Capability.onoff);
+        this.logger.logD(`${device.getName()}: action ${Flow.onoffToggle} runListener: ${value}`);
+        await device._setShieldOnoffValue(value);
+      });
   }
 }
 

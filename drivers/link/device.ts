@@ -1,3 +1,4 @@
+import { HomeyAPIV3Local } from 'homey-api';
 import Bridge from '../../lib/bridge/device';
 
 class Link extends Bridge {
@@ -9,7 +10,7 @@ class Link extends Bridge {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override async peerNotifyCapabilityValue(c: string, v: any) {
+  override async peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, c: string, v: any) {
     this.logger.logD(`peerNotifyCapabilityValue: ${c} = ${v}`);
     await this.setCapabilityValue(c, v);
   }
