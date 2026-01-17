@@ -15,11 +15,11 @@ class Shield extends Bridge {
       [Capability.onoff, false],
       [Capability.drift, ''],
     ];
-    shieldCapabilityDefaults.forEach(([c, v]) => {
-      this.setCapabilityValue(c, v)
+    await Promise.all(shieldCapabilityDefaults.map(([c, v]) => {
+      return this.setCapabilityValue(c, v)
         .then(() => this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`))
         .catch((e) => this.logger.logE_(`onAdded setCapabilityValue ${c} = ${v} failure`, e));
-    });
+    }));
   }
 
   private async setShieldDriftValue(value: string) {
@@ -94,7 +94,6 @@ class Shield extends Bridge {
           .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
       }
     });
-    return this.lastPromise;
   }
 }
 
