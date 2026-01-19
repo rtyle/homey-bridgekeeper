@@ -15,10 +15,13 @@ class Shield extends Bridge {
       [Capability.onoff, false],
       [Capability.drift, ''],
     ];
-    await Promise.all(shieldCapabilityDefaults.map(([c, v]) => {
-      return this.setCapabilityValue(c, v)
-        .then(() => this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`))
-        .catch((e) => this.logger.logE_(`onAdded setCapabilityValue ${c} = ${v} failure`, e));
+    await Promise.all(shieldCapabilityDefaults.map(async ([c, v]) => {
+      try {
+        await this.setCapabilityValue(c, v);
+        this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`);
+      } catch (e) {
+        this.logger.logE_(`onAdded setCapabilityValue ${c} = ${v} failure`, e);
+      }
     }));
   }
 
@@ -41,22 +44,30 @@ class Shield extends Bridge {
       // update (and store) capability value
       await this.setShieldDriftValue(Array.from(newSet).sort().join(', '));
       // trigger flows for each changed capability
-      for (const c of symmetricDifference) {
+      await Promise.all(Array.from(symmetricDifference).map(async (c) => {
         const v = String(this.peerGetCapabilityValue(c));
-        this.homey.flow
-          .getDeviceTriggerCard(Capability.drift)
-          .trigger(this, { value: v }, { capability: c })
-          .then(() => this.logger.logD(`trigger shield_drift: ${c} = ${v}`))
-          .catch((e) => this.logger.logE_(`trigger shield_drift: ${c} = ${v}`, e));
-      }
+        try {
+          await this.homey.flow
+            .getDeviceTriggerCard(Capability.drift)
+            .trigger(this, { value: v }, { capability: c });
+          this.logger.logD(`trigger shield_drift: ${c} = ${v}`);
+        } catch (e) {
+          this.logger.logE_(`trigger shield_drift: ${c} = ${v} failure`, e);
+        }
+      }));
     }
   }
 
+  // serialize processing by settling the last promise before the next one
+  private lastPromise: Promise<void> = Promise.resolve();
+
   public async _setShieldOnoffValue(v: boolean) {
-    this.logger.logD(`setShieldOnoffValue: ${v}`);
-    await this.setCapabilityValue(Capability.onoff, v);
-    await this.peerSync();
-    await this.setShieldDriftValue('');
+    this.lastPromise = this.lastPromise.then(async () => {
+      this.logger.logD(`setShieldOnoffValue: ${v}`);
+      await this.setCapabilityValue(Capability.onoff, v);
+      await this.peerSync();
+      await this.setShieldDriftValue('');
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,12 +85,12 @@ class Shield extends Bridge {
       this.logger.logD(`requestCapabilityValue: ${c} = ${v} blocked`);
       throw new Error(this.homey.__('errors.set_capability_value_blocked', { name: this.getName(), capability: c, value: v }));
     } else {
-      this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
-      await this.peerSetCapabilityValue(c, v); // update drift upon peerNotifyCapabilityValue
+      this.lastPromise = this.lastPromise.then(async () => {
+        this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
+        await this.peerSetCapabilityValue(c, v); // update drift upon peerNotifyCapabilityValue
+      });
     }
   }
-
-  private lastPromise: Promise<void> = Promise.resolve();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, c: string, v: any) {
