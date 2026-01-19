@@ -17,8 +17,8 @@ class Shield extends Bridge {
     ];
     await Promise.all(shieldCapabilityDefaults.map(async ([c, v]) => {
       try {
-        await this.setCapabilityValue(c, v);
         this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`);
+        await this.setCapabilityValue(c, v);
       } catch (e) {
         this.logger.logE_(`onAdded setCapabilityValue ${c} = ${v} failure`, e);
       }
@@ -47,10 +47,10 @@ class Shield extends Bridge {
       await Promise.all(Array.from(symmetricDifference).map(async (c) => {
         const v = String(this.peerGetCapabilityValue(c));
         try {
+          this.logger.logD(`trigger shield_drift: ${c} = ${v}`);
           await this.homey.flow
             .getDeviceTriggerCard(Capability.drift)
             .trigger(this, { value: v }, { capability: c });
-          this.logger.logD(`trigger shield_drift: ${c} = ${v}`);
         } catch (e) {
           this.logger.logE_(`trigger shield_drift: ${c} = ${v} failure`, e);
         }
@@ -58,7 +58,7 @@ class Shield extends Bridge {
     }
   }
 
-  // serialize processing by settling the last promise before the next one
+  // serialize processing by settling the last promise before making the next one
   private lastPromise: Promise<void> = Promise.resolve();
 
   public async _setShieldOnoffValue(v: boolean) {
