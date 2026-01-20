@@ -16,12 +16,8 @@ class Shield extends Bridge {
       [Capability.drift, ''],
     ];
     await Promise.all(shieldCapabilityDefaults.map(async ([c, v]) => {
-      try {
-        this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`);
-        await this.setCapabilityValue(c, v);
-      } catch (e) {
-        this.logger.logE_(`onAdded setCapabilityValue ${c} = ${v} failure`, e);
-      }
+      this.logger.logD(`onAdded setCapabilityValue ${c} = ${v}`);
+      await this.setCapabilityValue(c, v);
     }));
   }
 
@@ -46,14 +42,10 @@ class Shield extends Bridge {
       // trigger flows for each changed capability
       await Promise.all(Array.from(symmetricDifference).map(async (c) => {
         const v = String(this.peerGetCapabilityValue(c));
-        try {
-          this.logger.logD(`trigger shield_drift: ${c} = ${v}`);
-          await this.homey.flow
-            .getDeviceTriggerCard(Capability.drift)
-            .trigger(this, { value: v }, { capability: c });
-        } catch (e) {
-          this.logger.logE_(`trigger shield_drift: ${c} = ${v} failure`, e);
-        }
+        this.logger.logD(`trigger shield_drift: ${c} = ${v}`);
+        await this.homey.flow
+          .getDeviceTriggerCard(Capability.drift)
+          .trigger(this, { value: v }, { capability: c });
       }));
     }
   }
