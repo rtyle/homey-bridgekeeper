@@ -1,5 +1,4 @@
 enum Level {
-  _ = 0,
   E = 1,
   W = 2,
   I = 3,
@@ -8,8 +7,9 @@ enum Level {
 }
 
 const LevelThreshold = {
+  NONE: 0,
   ...Level,
-  ALL: Number.MAX_SAFE_INTEGER,
+  ALL: 6,
 };
 
 type LevelThreshold = typeof LevelThreshold[keyof typeof LevelThreshold];
@@ -17,26 +17,24 @@ type LevelThreshold = typeof LevelThreshold[keyof typeof LevelThreshold];
 class Logger {
   public static readonly LevelThreshold = LevelThreshold;
 
-  // class must be init'ed with threshold level, stdout and stderr streams
+  // class must be init'ed with threshold level, log and error streams
   public static levelThreshold: LevelThreshold;
-  private static log: (_: string) => void;
-  private static error: (_: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static log: (...args: any[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static error: (...args: any[]) => void;
   public static init(levelThreshold: LevelThreshold, log: (_: string) => void, error: (_: string) => void) {
     this.log = log;
     this.error = error;
     this.setLevelThreshold(levelThreshold);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static write(stream: (...args: any[]) => void, tag: string, level: Level, ...args: any[]) {
-    if (level <= Logger.levelThreshold) {
-      stream(`${Level[level]} ${tag}:`, ...args);
-    }
-  }
-
   public static setLevelThreshold(levelThreshold: LevelThreshold) {
-    this.write(Logger.log, Logger.name, Level._, `setLevelThreshold ${levelThreshold}`);
     this.levelThreshold = levelThreshold;
+    Logger.log(`_ ${Logger.name}:`, 'setLevelThreshold', levelThreshold,
+      (Object.keys(LevelThreshold) as Array<keyof typeof LevelThreshold>).find(
+        (k) => LevelThreshold[k] === levelThreshold,
+      ));
   }
 
   private static cache: Record<string, Logger> = {};
@@ -50,6 +48,13 @@ class Logger {
   private readonly tag: string;
   public constructor(tag: string) {
     this.tag = tag;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static write(stream: (...args: any[]) => void, tag: string, level: Level, ...args: any[]) {
+    if (level <= Logger.levelThreshold) {
+      stream(`${Level[level]} ${tag}:`, ...args);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
