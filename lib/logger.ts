@@ -1,5 +1,5 @@
 enum Level {
-  N = 0,
+  _ = 0,
   E = 1,
   W = 2,
   I = 3,
@@ -35,7 +35,7 @@ class Logger {
   }
 
   public static setLevelThreshold(levelThreshold: LevelThreshold) {
-    this.write(Logger.log, Logger.name, Level.N, `setLevelThreshold ${levelThreshold}`);
+    this.write(Logger.log, Logger.name, Level._, `setLevelThreshold ${levelThreshold}`);
     this.levelThreshold = levelThreshold;
   }
 
