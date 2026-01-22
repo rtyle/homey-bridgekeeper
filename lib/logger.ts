@@ -6,13 +6,15 @@ enum Level {
   V = 5,
 }
 
-const LevelThreshold = {
-  NONE: 0,
-  ...Level,
-  ALL: 6,
-};
-
-type LevelThreshold = typeof LevelThreshold[keyof typeof LevelThreshold];
+enum LevelThreshold {
+  None = 0,
+  Error = 1,
+  Warning = 2,
+  Info = 3,
+  Debug = 4,
+  Verbose = 5,
+  All = 6,
+}
 
 class Logger {
   public static readonly LevelThreshold = LevelThreshold;
@@ -31,10 +33,7 @@ class Logger {
 
   public static setLevelThreshold(levelThreshold: LevelThreshold) {
     this.levelThreshold = levelThreshold;
-    Logger.log(`_ ${Logger.name}:`, 'setLevelThreshold', levelThreshold,
-      (Object.keys(LevelThreshold) as Array<keyof typeof LevelThreshold>).find(
-        (k) => LevelThreshold[k] === levelThreshold,
-      ));
+    Logger.log(`_ ${Logger.name}:`, 'setLevelThreshold', levelThreshold, LevelThreshold[levelThreshold]);
   }
 
   private static cache: Record<string, Logger> = {};
