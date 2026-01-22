@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+</head>
+<body class="homey-form">
+
+  <fieldset class="homey-form-fieldset">
+    <legend class="homey-form-legend">App Settings</legend>
+
+    <!-- presentation -->
+
+    <!-- logger_level_threshold -->
+    <div class="homey-form-group">
+      <label class="homey-form-label" for="logger_level_threshold">Logger Level Threshold</label>
+      <select class="homey-form-select" id="logger_level_threshold">
+        <option value="0">0 - None</option>
+        <option value="1">1 - Error</option>
+        <option value="2">2 - Warning</option>
+        <option value="3">3 - Info</option>
+        <option value="4">4 - Debug</option>
+        <option value="5">5 - Verbose</option>
+        <option value="6">6 - All</option>
+      </select>
+      <p class="homey-form-help">Select the maximum level of detail for app logs.</p>
+    </div>
+  </fieldset>
+
+  <!-- scripting -->
+  <script type="text/javascript">
+
+    // await'able Homey.get
+    const homeyGet = (id) => {
+      return new Promise((resolve) => {
+        Homey.get(id, (error, value) => {
+          resolve(value);
+        });
+      });
+    };
+
+    async function onHomeyReady(Homey) {
+      // presentation ids
+      const loggerLevelThresholdId = 'logger_level_threshold';
+
+      // presentation elements
+      const loggerLevelThreshold = document.getElementById(loggerLevelThresholdId);
+
+      // presentation initialization
+      const loggerLevelThresholdValue = await homeyGet(loggerLevelThresholdId);
+      if (loggerLevelThresholdValue !== null) {
+        loggerLevelThreshold.value = loggerLevelThresholdValue;
+      }
+
+      // presentation ready
+      Homey.ready();
+
+      // presentation change   
+      loggerLevelThreshold.addEventListener('change', () => {
+        Homey.set(loggerLevelThresholdId, parseInt(loggerLevelThreshold.value), (error) => {
+          if (error) {
+            return Homey.error(error);
+          }
+        });
+      });
+    }
+  </script>
+  
+</body>
+</html>

@@ -1,4 +1,5 @@
 enum Level {
+  N = 0,
   E = 1,
   W = 2,
   I = 3,
@@ -7,7 +8,6 @@ enum Level {
 }
 
 const LevelThreshold = {
-  NONE: 0,
   ...Level,
   ALL: Number.MAX_SAFE_INTEGER,
 };
@@ -22,9 +22,9 @@ class Logger {
   private static log: (_: string) => void;
   private static error: (_: string) => void;
   public static init(levelThreshold: LevelThreshold, log: (_: string) => void, error: (_: string) => void) {
-    this.levelThreshold = levelThreshold;
     this.log = log;
     this.error = error;
+    this.setLevelThreshold(levelThreshold);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,7 +35,7 @@ class Logger {
   }
 
   public static setLevelThreshold(levelThreshold: LevelThreshold) {
-    this.write(Logger.log, Logger.name, Level.I, `setLevelThreshold ${levelThreshold}`);
+    this.write(Logger.log, Logger.name, Level.N, `setLevelThreshold ${levelThreshold}`);
     this.levelThreshold = levelThreshold;
   }
 
@@ -59,7 +59,7 @@ class Logger {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public logE(...args: any[]) {
-    this.write(Logger.log, Level.E, args);
+    this.write(Logger.log, Level.E, ...args);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
