@@ -27,20 +27,5 @@
   "author": {
     "name": "Ross Tyler",
     "email": "rossetyler@gmail.com"
-  },
-  "settings": [
-    {
-      "id": "logger_level_threshold",
-      "type": "dropdown",
-      "title": "Logger Level Threshold",
-      "value": "4", 
-      "values": [
-        { "id": "1", "title": "Error" },
-        { "id": "2", "title": "Warning" },
-        { "id": "3", "title": "Info" },
-        { "id": "4", "title": "Debug" },
-        { "id": "5", "title": "Verbose" }
-      ]
-    }
-  ]
+  }
 }
