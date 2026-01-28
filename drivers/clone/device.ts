@@ -37,10 +37,15 @@ class Clone extends Homey.Device {
     return this.peerPromise;
   }
 
+  public async getCommonCapabilities(): Promise<string[]> {
+    return (await this.getPeer()).capabilities
+      .filter((c) => this.getCapabilities().includes(c));
+  }
+
   protected async peerSync() {
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
-    await Promise.all(peer.capabilities
+    await Promise.all((await this.getCommonCapabilities())
       .map((c) => {
         const v = peerCapabilitiesObj[c]?.value;
         if (v !== null && v !== undefined && v !== this.getCapabilityValue(c)) {

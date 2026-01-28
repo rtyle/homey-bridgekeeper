@@ -11,24 +11,20 @@ abstract class Bridge extends Clone {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, capability: string, value: any): void;
 
-  // onInit, create a private DeviceCapability object as a proxy to each of its capabilities
+  // onInit, create private DeviceCapability objects to bridge to our common capabilities
   private peerCapability: { [_: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
   override async onInit(): Promise<void> {
     await super.onInit();
 
     const peer = await this.getPeer();
     // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
-    this.peerCapability = peer.capabilities
+    this.peerCapability = (await this.getCommonCapabilities())
       .reduce((r, c) => Object.assign(r, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [c]: peer.makeCapabilityInstance(c, (v: any) => {
           this.peerNotifyCapabilityValue(peer, c, v);
         }),
       }), {});
-  }
-
-  public async _peerGetCapabilities(): Promise<string[]> {
-    return (await this.getPeer()).capabilities;
   }
 
   // like this.getCapabilityValue for our peer

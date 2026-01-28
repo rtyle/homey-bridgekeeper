@@ -10,8 +10,8 @@ enum Flow {
 
 class Shield extends Bridge {
 
-  private async peerCapabilityAutocomplete(query: string, device: Device) {
-    const value = (await device._peerGetCapabilities())
+  private async commonCapabilityAutocomplete(query: string, device: Device) {
+    const value = (await device.getCommonCapabilities())
       .filter((c: string) => c.toLowerCase().includes(query.toLowerCase()))
       .map((c: string) => ({ name: c, id: c }));
     this.logger.logV(`${device.getName()} peerCapabilityAutocomplete: query = ${query}, value = ${JSON.stringify(value)}`);
@@ -25,7 +25,7 @@ class Shield extends Bridge {
     this.homey.flow
       .getDeviceTriggerCard(Flow.drift)
       .registerArgumentAutocompleteListener('capability', async (query, args) => {
-        return this.peerCapabilityAutocomplete(query, args.device as Device);
+        return this.commonCapabilityAutocomplete(query, args.device as Device);
       })
       .registerRunListener(async (args, state) => {
         const match = args.capability.id === state.capability;
@@ -39,7 +39,7 @@ class Shield extends Bridge {
     this.homey.flow
       .getConditionCard(Flow.drift)
       .registerArgumentAutocompleteListener('capability', async (query, args) => {
-        return this.peerCapabilityAutocomplete(query, args.device as Device);
+        return this.commonCapabilityAutocomplete(query, args.device as Device);
       })
       .registerRunListener(async (args, state) => {
         const device = args.device as Device;

@@ -93,7 +93,7 @@ class Shield extends Bridge {
       if (this.driver.manifest.capabilities.includes(c)) {
         this.logger.logE_(`peerNotifyCapabilityValue: ${c} = ${v} unsupported`);
       } else {
-        await this.setShieldDriftSet(new Set(peer.capabilities
+        await this.setShieldDriftSet(new Set((await this.getCommonCapabilities())
           .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
       }
     });
