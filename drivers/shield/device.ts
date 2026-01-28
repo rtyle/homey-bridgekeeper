@@ -75,7 +75,7 @@ class Shield extends Bridge {
       }
     } else if (this.getCapabilityValue(Capability.onoff)) {
       this.logger.logD(`requestCapabilityValue: ${c} = ${v} blocked`);
-      throw new Error(this.homey.__('errors.set_capability_value_blocked', { name: this.getName(), capability: c, value: v }));
+      throw new Error(this.homey.__('error.set_capability_value_blocked', { name: this.getName(), capability: c, value: v }));
     } else {
       this.lastPromise = this.lastPromise.then(async () => {
         this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);

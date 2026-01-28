@@ -1,6 +1,14 @@
 {
   "device_name": "__peerDeviceName__ __driverName__",
-  "errors": {
+  "error": {
     "set_capability_value_blocked": "__name__ setCapabilityValue(__capability__, __value__) blocked"
+  },
+  "pair": {
+    "filters": {
+      "title": "Filter Devices",
+      "description": "Narrow peer device selection by Zone and Class",
+      "zone": "Zone",
+      "class": "Class"
+    }
   }
 }
