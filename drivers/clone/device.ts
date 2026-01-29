@@ -25,10 +25,12 @@ class Clone extends Homey.Device {
       try {
         this.peer = await (await (this.homey.app as App).getApi())
           .devices.getDevice({ id: this.getData().peerId });
+        await this.setAvailable();
         return this.peer;
       } catch (e) {
         this.logger.logE_('getPeer: peer not found', e);
         this.peerPromise = null;
+        await this.setUnavailable();
         throw e;
       } finally {
         this.logger.logD('getPeer: promise settled');
@@ -37,9 +39,19 @@ class Clone extends Homey.Device {
     return this.peerPromise;
   }
 
+  private commonCapabilities: string[] | null = null;
+  private commonCapabilitiesPromise: Promise<string[]> | null = null;
   public async getCommonCapabilities(): Promise<string[]> {
-    return (await this.getPeer()).capabilities
-      .filter((c) => this.getCapabilities().includes(c));
+    if (this.commonCapabilities) return this.commonCapabilities;
+    this.logger.logD('getCommonCapabilities: promise');
+    if (this.commonCapabilitiesPromise) return this.commonCapabilitiesPromise;
+    this.commonCapabilitiesPromise = (async () => {
+      this.commonCapabilities = (await this.getPeer()).capabilities
+        .filter((c) => this.getCapabilities().includes(c));
+      this.logger.logD('getCommonCapabilities: promise settled:', ...this.commonCapabilities);
+      return this.commonCapabilities;
+    })();
+    return this.commonCapabilitiesPromise;
   }
 
   protected async peerSync() {

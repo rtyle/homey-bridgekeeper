@@ -60,7 +60,7 @@ class Clone extends Homey.Driver {
       const driverName_ = this.manifest.name[this.homey.i18n.getLanguage()] || this.manifest.name['en'];
       // filter devices by zones and classes
       // our device will have all of our capabilities
-      // plus those of its peer's that are system capabilities
+      // plus those of its peer's that are system (sub-)capabilities
       const list = devices
         .filter((peer_) => !zones.length || zones.includes(peer_.zone))
         .filter((peer_) => !classes.length || classes.includes(peer_.class))
@@ -70,7 +70,8 @@ class Clone extends Homey.Driver {
             data: {
               peerId: peer.id,
             },
-            capabilities: [...(this.manifest.capabilities || []), ...peer.capabilities.filter((c) => Capabilities.has(c))],
+            capabilities: [...(this.manifest.capabilities || []),
+              ...peer.capabilities.filter((c) => Capabilities.has(c.split('.')[0]))],
             capabilitiesOptions: { ...(this.manifest.capabilitiesOptions || {}), ...peer.capabilitiesOptions },
           };
         });
