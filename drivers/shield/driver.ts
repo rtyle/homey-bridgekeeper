@@ -11,7 +11,7 @@ enum Flow {
 class Shield extends Bridge {
 
   private async commonCapabilityAutocomplete(query: string, device: Device) {
-    const value = (await device.getCommonCapabilities())
+    const value = device.commonCapabilities
       .filter((c: string) => c.toLowerCase().includes(query.toLowerCase()))
       .map((c: string) => ({ name: c, id: c }));
     this.logger.logV(`${device.getName()} peerCapabilityAutocomplete: query = ${query}, value = ${JSON.stringify(value)}`);

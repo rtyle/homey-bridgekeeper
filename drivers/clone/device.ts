@@ -15,6 +15,28 @@ interface CapabilitiesObj {
 class Clone extends Homey.Device {
   protected readonly logger = Logger.get([this.constructor.name, this.getName()].join(': '));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async requestCapabilityValue(c: string, v: any, _options: any) {
+    this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
+    await this.setCapabilityValue(c, v);
+  }
+
+  public commonCapabilities: string[] = [];
+
+  // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
+  override async onInit() {
+    this.logger.logD('onInit');
+    const capabilities = this.getCapabilities();
+    this.commonCapabilities = capabilities.filter((c) => !this.driver.manifest.capabilities.includes(c));
+    capabilities
+      .forEach((c) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.registerCapabilityListener(c, async (v: any, o: any) => {
+          await this.requestCapabilityValue(c, v, o);
+        });
+      });
+  }
+
   private peer : HomeyAPIV3Local.ManagerDevices.Device | null = null;
   private peerPromise: Promise<HomeyAPIV3Local.ManagerDevices.Device> | null = null;
   protected async getPeer(): Promise<HomeyAPIV3Local.ManagerDevices.Device> {
@@ -39,25 +61,10 @@ class Clone extends Homey.Device {
     return this.peerPromise;
   }
 
-  private commonCapabilities: string[] | null = null;
-  private commonCapabilitiesPromise: Promise<string[]> | null = null;
-  public async getCommonCapabilities(): Promise<string[]> {
-    if (this.commonCapabilities) return this.commonCapabilities;
-    this.logger.logD('getCommonCapabilities: promise');
-    if (this.commonCapabilitiesPromise) return this.commonCapabilitiesPromise;
-    this.commonCapabilitiesPromise = (async () => {
-      this.commonCapabilities = (await this.getPeer()).capabilities
-        .filter((c) => this.getCapabilities().includes(c));
-      this.logger.logD('getCommonCapabilities: promise settled:', ...this.commonCapabilities);
-      return this.commonCapabilities;
-    })();
-    return this.commonCapabilitiesPromise;
-  }
-
   protected async peerSync() {
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
-    await Promise.all((await this.getCommonCapabilities())
+    await Promise.all(this.commonCapabilities
       .map((c) => {
         const v = peerCapabilitiesObj[c]?.value;
         if (v !== null && v !== undefined && v !== this.getCapabilityValue(c)) {
@@ -82,24 +89,6 @@ class Clone extends Homey.Device {
 
   override onAdded() {
     this._onAdded(true).catch((e) => {});
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async requestCapabilityValue(c: string, v: any, _options: any) {
-    this.logger.logD(`requestCapabilityValue: ${c} = ${v}`);
-    await this.setCapabilityValue(c, v);
-  }
-
-  // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
-  override async onInit() {
-    this.logger.logD('onInit');
-    this.getCapabilities()
-      .forEach((c) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.registerCapabilityListener(c, async (v: any, o: any) => {
-          await this.requestCapabilityValue(c, v, o);
-        });
-      });
   }
 }
 

@@ -18,7 +18,7 @@ abstract class Bridge extends Clone {
 
     const peer = await this.getPeer();
     // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
-    this.peerCapability = (await this.getCommonCapabilities())
+    this.peerCapability = this.commonCapabilities
       .reduce((r, c) => Object.assign(r, {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [c]: peer.makeCapabilityInstance(c, (v: any) => {
