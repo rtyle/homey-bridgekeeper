@@ -17,7 +17,7 @@ abstract class Bridge extends Clone {
     await super.onInit();
 
     try {
-      const peer = (await this.getPeer()) as Device;
+      const peer = await this.getPeer();
 
       // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
       this.peerCapability = this.commonCapabilities
