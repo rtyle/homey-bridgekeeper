@@ -16,15 +16,21 @@ abstract class Bridge extends Clone {
   override async onInit(): Promise<void> {
     await super.onInit();
 
-    const peer = await this.getPeer();
-    // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
-    this.peerCapability = this.commonCapabilities
-      .reduce((r, c) => Object.assign(r, {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [c]: peer.makeCapabilityInstance(c, (v: any) => {
-          this.peerNotifyCapabilityValue(peer, c, v);
-        }),
-      }), {});
+    try {
+      const peer = (await this.getPeer()) as Device;
+
+      // call peerNotifyCapabilityValue(c, v) when a capability (c) value (v) changes
+      this.peerCapability = this.commonCapabilities
+        .reduce((r, c) => Object.assign(r, {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          [c]: peer.makeCapabilityInstance(c, (v: any) => {
+            this.peerNotifyCapabilityValue(peer, c, v);
+          }),
+        }), {});
+    } catch (e) {
+      this.logger.logE_(`onInit: unavailable ${e}`);
+      await this.setUnavailable();
+    }
   }
 
   // like this.getCapabilityValue for our peer
@@ -37,7 +43,12 @@ abstract class Bridge extends Clone {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async peerSetCapabilityValue(c: string, v: any) {
     this.logger.logD(`peerSetCapabilityValue: ${c} = ${v}`);
-    await this.peerCapability[c]?.setValue(v);
+    try {
+      await this.peerCapability[c]?.setValue(v);
+    } catch (e) {
+      this.logger.logE_(`peerSetCapabilityValue: unavailable ${e}`);
+      await this.setUnavailable();
+    }
   }
 
   // cleanup resources created onInit

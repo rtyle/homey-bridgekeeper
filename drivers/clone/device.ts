@@ -47,12 +47,10 @@ class Clone extends Homey.Device {
       try {
         this.peer = await (await (this.homey.app as App).getApi())
           .devices.getDevice({ id: this.getData().peerId });
-        await this.setAvailable();
         return this.peer;
       } catch (e) {
         this.logger.logE_('getPeer: peer not found', e);
         this.peerPromise = null;
-        await this.setUnavailable();
         throw e;
       } finally {
         this.logger.logD('getPeer: promise settled');

@@ -90,12 +90,8 @@ class Shield extends Bridge {
     // this ensures that we have completed processing of prior changes before starting on this one
     this.lastPromise = this.lastPromise.then(async () => {
       this.logger.logD(`peerNotifyCapabilityValue: ${c} = ${v}`);
-      if (this.driver.manifest.capabilities.includes(c)) {
-        this.logger.logE_(`peerNotifyCapabilityValue: ${c} = ${v} unsupported`);
-      } else {
-        await this.setShieldDriftSet(new Set(this.commonCapabilities
-          .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
-      }
+      await this.setShieldDriftSet(new Set(this.commonCapabilities
+        .filter((c) => this.getCapabilityValue(c) !== this.peerGetCapabilityValue(c))));
     });
   }
 }
