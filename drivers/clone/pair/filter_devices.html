@@ -28,36 +28,37 @@
 
 <script>
 (function() {
-  const zonesId = document.getElementById('zones');
-  const classesId = document.getElementById('classes');
-  
+  const zonesElement = document.getElementById('zones');
+  const classesElement = document.getElementById('classes');
+
+  // get selected zones and classes from the back-end, and system lists of such,
+  // to initialize the front-end
   Promise.all([
     Homey.emit('get_zones'),
     Homey.emit('get_classes'),
     Homey.emit('list_zones'),
     Homey.emit('list_classes')
   ]).then(([zones, classes, zoneList, classList]) => {
-    zonesId.innerHTML = zoneList.map((item, index) => {
-      const checked = zones.includes(item.id) ? 'checked' : '';
+    zonesElement.innerHTML = zoneList.map((item, index) => {
       return `<div class="checkbox-item">
-        <input type="checkbox" id="zone-${index}" value="${item.id}" class="zone-checkbox" ${checked}>
+        <input type="checkbox" id="zone-${index}" value="${item.id}" class="zone-checkbox" ${zones.includes(item.id) ? 'checked' : ''}>
         <label for="zone-${index}">${item.name}</label>
       </div>`;
     }).join('');  
-    classesId.innerHTML = classList.map((item, index) => {
-      const checked = classes.includes(item.id) ? 'checked' : '';
+    classesElement.innerHTML = classList.map((item, index) => {
       return `<div class="checkbox-item">
-        <input type="checkbox" id="class-${index}" value="${item.id}" class="class-checkbox" ${checked}>
+        <input type="checkbox" id="class-${index}" value="${item.id}" class="class-checkbox" ${classes.includes(item.id) ? 'checked' : ''}>
         <label for="class-${index}">${item.name}</label>
       </div>`;
     }).join('');
   });
-  
+
+  // forward all changes to selections to the back-end
   function getSelection(className) {
     return Array.from(document.querySelectorAll(`.${className}:checked`))
       .map(cb => cb.value);
   }
-  zonesId.addEventListener('change', (e) => Homey.emit('set_zones', getSelection('zone-checkbox')));
-  classesId.addEventListener('change', (e) => Homey.emit('set_classes', getSelection('class-checkbox')));
+  zonesElement.addEventListener('change', (e) => Homey.emit('set_zones', getSelection('zone-checkbox')));
+  classesElement.addEventListener('change', (e) => Homey.emit('set_classes', getSelection('class-checkbox')));
 })();
 </script>
