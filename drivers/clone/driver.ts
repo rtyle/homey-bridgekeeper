@@ -59,7 +59,7 @@ class Clone extends Homey.Driver {
       classes = list;
     });
 
-    // back-end handler list_device (system template) front-end
+    // back-end handler for front-end list_devices template
     // filters devices by zones and classes
     session.setHandler('list_devices', async () => {
       this.logger.logD('onPair list_devices');

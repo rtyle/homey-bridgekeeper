@@ -11,8 +11,8 @@ abstract class Bridge extends Clone {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, capability: string, value: any): void;
 
-  // onInit, create private DeviceCapability objects to bridge to our common capabilities
   private peerCapability: { [_: string]: HomeyAPIV3.ManagerDevices.Device.DeviceCapability } = {};
+
   override async onInit(): Promise<void> {
     await super.onInit();
 
@@ -28,12 +28,12 @@ abstract class Bridge extends Clone {
           }),
         }), {});
     } catch (e) {
-      this.logger.logE_(`onInit: unavailable ${e}`);
+      this.logger.logE_('onInit: unavailable', e);
       await this.setUnavailable();
     }
   }
 
-  // like this.getCapabilityValue for our peer
+  // like this.getCapabilityValue but for our peer
   protected peerGetCapabilityValue(c: string) {
     const v = this.peerCapability[c].value;
     this.logger.logV(`peerGetCapabilityValue: ${c} = ${v}`);

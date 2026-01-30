@@ -61,7 +61,7 @@ class Shield extends Bridge {
         .registerRunListener(async (args) => {
           const device = args.device as Device;
           this.logger.logD(`${device.getName()}: action ${flow} runListener`);
-          await device._setShieldOnoffValue(value);
+          await device.setShieldOnoffValue(value);
         });
     });
     this.homey.flow.getActionCard(Flow.onoffToggle)
@@ -69,7 +69,7 @@ class Shield extends Bridge {
         const device = args.device as Device;
         const value = !device.getCapabilityValue(Device.Capability.onoff);
         this.logger.logD(`${device.getName()}: action ${Flow.onoffToggle} runListener: ${value}`);
-        await device._setShieldOnoffValue(value);
+        await device.setShieldOnoffValue(value);
       });
   }
 }

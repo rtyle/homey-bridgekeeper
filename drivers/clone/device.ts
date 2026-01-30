@@ -23,11 +23,14 @@ class Clone extends Homey.Device {
 
   public commonCapabilities: string[] = [];
 
-  // onInit, registerCapbilityListener (hasCapabilityValue) for each of our capabilities
   override async onInit() {
     this.logger.logD('onInit');
     const capabilities = this.getCapabilities();
+
+    // commonCapabilities are everything not in our manifest
     this.commonCapabilities = capabilities.filter((c) => !this.driver.manifest.capabilities.includes(c));
+
+    // registerCapbilityListener (requestCapabilityValue) for each of our capabilities
     capabilities
       .forEach((c) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,7 +62,8 @@ class Clone extends Homey.Device {
     return this.peerPromise;
   }
 
-  protected async peerSync() {
+  // copy commonCapabilities from peer
+  protected async copyCommonCapabilities() {
     const peer = await this.getPeer();
     const peerCapabilitiesObj = peer.capabilitiesObj as CapabilitiesObj;
     await Promise.all(this.commonCapabilities
@@ -74,11 +78,11 @@ class Clone extends Homey.Device {
       }));
   }
 
-  // override _onAdded in subclasses to avoid forgetting peer on onAdded
+  // override _onAdded in subclasses to avoid forgetting peer after onAdded
   protected async _onAdded(forgetPeer: boolean = false) {
     this.logger.logD('onAdded');
-    // initialize our mirrored values of our peer's capabilities
-    await this.peerSync();
+
+    await this.copyCommonCapabilities();
     if (forgetPeer) {
       this.peer = null;
       this.peerPromise = null;

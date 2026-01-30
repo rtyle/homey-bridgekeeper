@@ -10,7 +10,9 @@ class Shield extends Bridge {
   public static readonly Capability = Capability;
 
   override async _onAdded() {
-    await super._onAdded(); // initialize our mirrored values of our peer's capabilities
+    await super._onAdded(); // copy commonCapabilities from peer
+
+    // initialize each Capability of ours
     const shieldCapabilityDefaults: Array<[Capability, boolean | string]> = [
       [Capability.onoff, false],
       [Capability.drift, ''],
@@ -37,8 +39,9 @@ class Shield extends Bridge {
       ...Array.from(oldSet).filter((e) => !newSet.has(e)),
     ]);
     if (symmetricDifference.size > 0) { // is there a difference?
-      // update (and store) capability value
+      // update (and persist) capability value
       await this.setShieldDriftValue(Array.from(newSet).sort().join(', '));
+
       // trigger flows for each changed capability
       await Promise.all(Array.from(symmetricDifference).map(async (c) => {
         const v = String(this.peerGetCapabilityValue(c));
@@ -53,11 +56,11 @@ class Shield extends Bridge {
   // serialize processing by settling the last promise before making the next one
   private lastPromise: Promise<void> = Promise.resolve();
 
-  public async _setShieldOnoffValue(v: boolean) {
+  public async setShieldOnoffValue(v: boolean) {
     this.lastPromise = this.lastPromise.then(async () => {
       this.logger.logD(`setShieldOnoffValue: ${v}`);
       await this.setCapabilityValue(Capability.onoff, v);
-      await this.peerSync();
+      await this.copyCommonCapabilities();
       await this.setShieldDriftValue('');
     });
   }
@@ -67,7 +70,7 @@ class Shield extends Bridge {
     if (this.driver.manifest.capabilities.includes(c)) {
       switch (c) {
         case Capability.onoff:
-          await this._setShieldOnoffValue(v);
+          await this.setShieldOnoffValue(v);
           break;
         default:
           this.logger.logE_(`requestCapabilityValue: ${c} = ${v} unsupported`);
@@ -86,8 +89,6 @@ class Shield extends Bridge {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   override async peerNotifyCapabilityValue(peer: HomeyAPIV3Local.ManagerDevices.Device, c: string, v: any) {
-    // resolve our lastPromise then promise to process this change
-    // this ensures that we have completed processing of prior changes before starting on this one
     this.lastPromise = this.lastPromise.then(async () => {
       this.logger.logD(`peerNotifyCapabilityValue: ${c} = ${v}`);
       await this.setShieldDriftSet(new Set(this.commonCapabilities
