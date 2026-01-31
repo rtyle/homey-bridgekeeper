@@ -13,8 +13,7 @@ Clone
 Link
 
 * Allows capability values to flow freely to and from its peer.
-* Behaves as an alias or link to the peer device.
-* May virtually appear in a different zone than its peer.
+* May appear in a different zone than its peer.
 * Allows a door sensor between two zones to trigger activity in each.
 
 Shield
@@ -32,8 +31,8 @@ Shielding policy is supported by
 
 Shield example
 
-Manually override Light automation by physical interaction with its onoff switch
-by rewriting automation such as this
+Manually override Light automation by physical interaction with its onoff switch.
+Rewrite automation such as this
 
 * When Light's zone is active/inactive turn on/off Light
 
