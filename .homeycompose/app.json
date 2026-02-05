@@ -10,7 +10,7 @@
     "en": "Bridgekeeper"
   },
   "description": {
-    "en": "Virtual devices to support policies for traffic over a bridge to a peer"
+    "en": "Shield your devices from automation (manual override) and more"
   },
   "category": [
     "tools"
