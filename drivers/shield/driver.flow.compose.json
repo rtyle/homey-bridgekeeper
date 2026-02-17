@@ -36,10 +36,10 @@
     {
       "id": "shield_drift",
       "title": {
-        "en": "Capability !{{has drifted away|has drifted back}}"
+        "en": "Capability !{{has drifted|has not drifted}}"
       },
       "titleFormatted": {
-        "en": "[[capability]] !{{has drifted away|has drifted back}}"
+        "en": "[[capability]] !{{has drifted|has not drifted}}"
       },
       "hint": {
         "en": "Check the drift of a peer capability"

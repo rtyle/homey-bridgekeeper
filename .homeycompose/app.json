@@ -25,7 +25,18 @@
     "xlarge": "/assets/images/xlarge.png"
   },
   "author": {
-    "name": "Ross Tyler",
-    "email": "rossetyler@gmail.com"
-  }
+    "name": "Ross Tyler"
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "rossetyler"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/rtyle/homey-bridgekeeper/issues"
+  },
+  "homeyCommunityTopicId": 150370,
+  "source": "https://github.com/rtyle/homey-bridgekeeper"
 }
