@@ -44,5 +44,4 @@ Shielding Light from automation is simple:
 * Rewrite the automation to target Light Shield instead of Light and add shielding policy flow(s) such as
 * When there is Light Shield onoff drift then toggle shield on or off.
 
-A Bridgekeeper Shield does not presume to know the best shielding policy.
-It is up to the user to define what is best.
+A Bridgekeeper Shield does not presume to know the best shielding policy for your situation.
